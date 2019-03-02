@@ -31,27 +31,30 @@ int main()
 		return -1;
 	}
 
-	Mat avrFrame;
-	cap >> avrFrame;
+	Mat imgRef;
+	cap >> imgRef;
 
 	//const Rect roi = Rect(Point2i(1571, 186), Point2i(1746, 338));
 	//const Rect roi = Rect(Point2i(1617, 294), Point2i(1662, 310));
 	//const Rect roi = Rect(Point2i(630, 855), Point2i(702, 920));
 
-	const Rect roiA = Rect(Point2i(1571, 186), Point2i(1746, 338));
-	const Rect roiB = Rect(Point2i(1617, 294), Point2i(1662, 310));
+	const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
+	const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
 	//const Rect roiB = Rect(Point2i(630, 855), Point2i(702, 920));
 
-	const int ScaleFactor = 10;
-	avrFrame = avrFrame(roiA);
-	cvtColor(avrFrame, avrFrame, COLOR_BGR2GRAY);
-	imwrite(srtOutPath + "Firstframe.jpg", avrFrame);
+	const int ScaleFactor = 4;
+	imgRef = imgRef(roiRef);
+	cvtColor(imgRef, imgRef, COLOR_BGR2GRAY);
+	imwrite(srtOutPath + "Firstframe.jpg", imgRef);
 
 	ImresizeInFreqFilter filter;
-	filter.Process(avrFrame, avrFrame, ScaleFactor);
+	filter.Process(imgRef, imgRef, ScaleFactor);
 	
-	Point offset(roiB.x - roiA.x, roiB.y - roiA.y);
+	Point offset(roiTemplate.x - roiRef.x, roiTemplate.y - roiRef.y);
 	offset *= ScaleFactor;
+
+	Mat imgAvgA = Mat(roiTemplate.size() * ScaleFactor, CV_32F, Scalar(0));
+	Mat imgAvgB = Mat(roiTemplate.size() * ScaleFactor, CV_32F, Scalar(0));
 	int i = 0;
 	while (1)
 	{
@@ -60,26 +63,35 @@ int main()
 		if (frameCam.empty())
 			break;
 		Mat imgTemplate;
-		imgTemplate = frameCam(roiB);
+		imgTemplate = frameCam(roiTemplate);
 		cvtColor(imgTemplate, imgTemplate, COLOR_BGR2GRAY);
 		filter.Process(imgTemplate, imgTemplate, ScaleFactor);
 		imgTemplate.convertTo(imgTemplate, CV_32F);
-		avrFrame.convertTo(avrFrame, CV_32F);
-		//avrFrame+= frame;
+		imgRef.convertTo(imgRef, CV_32F);
+		//imgRef+= frame;
 		Point maxLoc;
-		FindOffset(avrFrame, imgTemplate, maxLoc);
+		FindOffset(imgRef, imgTemplate, maxLoc);
 		normalize(imgTemplate, imgTemplate, 0, 255, NORM_MINMAX);
 		imgTemplate.convertTo(imgTemplate, CV_8U);
-
 		imshow("imgTemplate", imgTemplate);
-		//imgTemplate = frameCam(roiB);
 
+		Mat imgRef = frameCam(roiRef);
+		cvtColor(imgRef, imgRef, COLOR_BGR2GRAY);
+		filter.Process(imgRef, imgRef, ScaleFactor);
 		Point offsetRel = maxLoc - offset;
-		//Rect roiBCorrected = Rect(ScaleFactor * (roiB.tl() - roiA.tl()), ScaleFactor * (roiB.br() - roiA.br()) - offsetRel);
-		//Mat imgA = frameCam(roiA);
-		//cvtColor(imgA, imgA, COLOR_BGR2GRAY);
-		//filter.Process(imgA, imgA, ScaleFactor);
-//		imshow("imgTemplCorr", imgA(roiBCorrected));
+		Rect roi = Rect(maxLoc, roiTemplate.size() * ScaleFactor);
+		Mat imgRefA = imgRef(roi).clone();
+		imgAvgA += imgRefA;
+		normalize(imgRefA, imgRefA, 0, 255, NORM_MINMAX);
+		imgRefA.convertTo(imgRefA, CV_8U);
+		imshow("imgRefA", imgRefA);
+
+		roi = Rect(offset, roiTemplate.size() * ScaleFactor);
+		Mat imgRefB = imgRef(roi).clone();
+		imgAvgB += imgRefB;
+		normalize(imgRefB, imgRefB, 0, 255, NORM_MINMAX);
+		imgRefB.convertTo(imgRefB, CV_8U);
+		imshow("imgRefB", imgRefB);
 
 		if (waitKey(10) >= 0) 
 			break;
@@ -89,10 +101,19 @@ int main()
 	}
 	cap.release();
 
-	normalize(avrFrame, avrFrame, 0, 255, NORM_MINMAX);
-	avrFrame.convertTo(avrFrame, CV_8U);
-	imshow("Average", avrFrame);
-	imwrite(srtOutPath + "avrFrame.jpg", avrFrame);
+	normalize(imgRef, imgRef, 0, 255, NORM_MINMAX);
+	imgRef.convertTo(imgRef, CV_8U);
+	imshow("Average", imgRef);
+	imwrite(srtOutPath + "imgRef.jpg", imgRef);
+
+	normalize(imgAvgA, imgAvgA, 0, 255, NORM_MINMAX);
+	imgAvgA.convertTo(imgAvgA, CV_8U);
+	imwrite(srtOutPath + "imgAvgA.jpg", imgAvgA);
+
+	normalize(imgAvgB, imgAvgB, 0, 255, NORM_MINMAX);
+	imgAvgB.convertTo(imgAvgB, CV_8U);
+	imwrite(srtOutPath + "imgAvgB.jpg", imgAvgB);
+
 	waitKey(0);
 
 	//destroyAllWindows();
