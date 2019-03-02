@@ -22,6 +22,8 @@ int FindOffset(const Mat & inputImg, const Mat & inputImgTemplate, Point & maxLo
 int main() 
 {
 	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video1.avi");
+	String srtOutPath = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
+
 	//VideoCapture cap(0);
 	if (!cap.isOpened())
 	{
@@ -46,7 +48,7 @@ int main()
 	const int ScaleFactor = 5;
 	avrFrame = avrFrame(roiA);
 	cvtColor(avrFrame, avrFrame, COLOR_BGR2GRAY);
-	imwrite("Firstframe.jpg", avrFrame);
+	imwrite(srtOutPath + "Firstframe.jpg", avrFrame);
 
 	ImresizeInFreqFilter filter;
 	filter.Process(avrFrame, avrFrame, ScaleFactor);
@@ -79,7 +81,7 @@ int main()
 	normalize(avrFrame, avrFrame, 0, 255, NORM_MINMAX);
 	avrFrame.convertTo(avrFrame, CV_8U);
 	imshow("Average", avrFrame);
-	imwrite("avrFrame.jpg", avrFrame);
+	imwrite(srtOutPath + "avrFrame.jpg", avrFrame);
 	waitKey(0);
 
 	//destroyAllWindows();
