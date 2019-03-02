@@ -42,7 +42,7 @@ int main()
 	const Rect roiB = Rect(Point2i(1617, 294), Point2i(1662, 310));
 	//const Rect roiB = Rect(Point2i(630, 855), Point2i(702, 920));
 
-	const int ScaleFactor = 1;
+	const int ScaleFactor = 10;
 	avrFrame = avrFrame(roiA);
 	cvtColor(avrFrame, avrFrame, COLOR_BGR2GRAY);
 	imwrite(srtOutPath + "Firstframe.jpg", avrFrame);
@@ -55,26 +55,37 @@ int main()
 	int i = 0;
 	while (1)
 	{
-		Mat frame;
-		cap >> frame;
-		if (frame.empty()) 
+		Mat frameCam;
+		cap >> frameCam;
+		if (frameCam.empty())
 			break;
-		frame = frame(roiB);
-		cvtColor(frame, frame, COLOR_BGR2GRAY);
-		filter.Process(frame, frame, ScaleFactor);
-		frame.convertTo(frame, CV_32F);
+		Mat imgTemplate;
+		imgTemplate = frameCam(roiB);
+		cvtColor(imgTemplate, imgTemplate, COLOR_BGR2GRAY);
+		filter.Process(imgTemplate, imgTemplate, ScaleFactor);
+		imgTemplate.convertTo(imgTemplate, CV_32F);
 		avrFrame.convertTo(avrFrame, CV_32F);
 		//avrFrame+= frame;
 		Point maxLoc;
-		FindOffset(avrFrame, frame, maxLoc);
-		normalize(frame, frame, 0, 255, NORM_MINMAX);
-		frame.convertTo(frame, CV_8U);
-		imshow("frame", frame);
+		FindOffset(avrFrame, imgTemplate, maxLoc);
+		normalize(imgTemplate, imgTemplate, 0, 255, NORM_MINMAX);
+		imgTemplate.convertTo(imgTemplate, CV_8U);
+
+		imshow("imgTemplate", imgTemplate);
+		//imgTemplate = frameCam(roiB);
+
+		Point offsetRel = maxLoc - offset;
+		//Rect roiBCorrected = Rect(ScaleFactor * (roiB.tl() - roiA.tl()), ScaleFactor * (roiB.br() - roiA.br()) - offsetRel);
+		//Mat imgA = frameCam(roiA);
+		//cvtColor(imgA, imgA, COLOR_BGR2GRAY);
+		//filter.Process(imgA, imgA, ScaleFactor);
+//		imshow("imgTemplCorr", imgA(roiBCorrected));
+
 		if (waitKey(10) >= 0) 
 			break;
 		cout << "frame number: " << i++;
 		cout << "\t maxLoc = " << maxLoc << endl;
-		cout << "\t offset = " << maxLoc - offset << endl;
+		cout << "\t maxLoc - offset = " << offsetRel << endl;
 	}
 	cap.release();
 
