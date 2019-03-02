@@ -34,15 +34,12 @@ int main()
 	Mat imgRef;
 	cap >> imgRef;
 
-	//const Rect roi = Rect(Point2i(1571, 186), Point2i(1746, 338));
-	//const Rect roi = Rect(Point2i(1617, 294), Point2i(1662, 310));
-	//const Rect roi = Rect(Point2i(630, 855), Point2i(702, 920));
+	//const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
+	//const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
+	const Rect roiRef = Rect(Point2i(543, 740), Point2i(901, 983));
+	const Rect roiTemplate = Rect(Point2i(630, 855), Point2i(702, 920));
 
-	const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
-	const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
-	//const Rect roiB = Rect(Point2i(630, 855), Point2i(702, 920));
-
-	const int ScaleFactor = 4;
+	const int ScaleFactor = 8;
 	imgRef = imgRef(roiRef);
 	cvtColor(imgRef, imgRef, COLOR_BGR2GRAY);
 	imwrite(srtOutPath + "Firstframe.jpg", imgRef);
