@@ -31,9 +31,6 @@ int main()
 		return -1;
 	}
 
-	//namedWindow("Video", cv::WINDOW_AUTOSIZE);
-	//namedWindow("Average", cv::WINDOW_AUTOSIZE);
-
 	Mat avrFrame;
 	cap >> avrFrame;
 
@@ -45,7 +42,7 @@ int main()
 	const Rect roiB = Rect(Point2i(1617, 294), Point2i(1662, 310));
 	//const Rect roiB = Rect(Point2i(630, 855), Point2i(702, 920));
 
-	const int ScaleFactor = 5;
+	const int ScaleFactor = 1;
 	avrFrame = avrFrame(roiA);
 	cvtColor(avrFrame, avrFrame, COLOR_BGR2GRAY);
 	imwrite(srtOutPath + "Firstframe.jpg", avrFrame);
@@ -53,14 +50,16 @@ int main()
 	ImresizeInFreqFilter filter;
 	filter.Process(avrFrame, avrFrame, ScaleFactor);
 	
+	Point offset(roiB.x - roiA.x, roiB.y - roiA.y);
+	offset *= ScaleFactor;
 	int i = 0;
 	while (1)
 	{
 		Mat frame;
 		cap >> frame;
-		frame = frame(roiB);
 		if (frame.empty()) 
 			break;
+		frame = frame(roiB);
 		cvtColor(frame, frame, COLOR_BGR2GRAY);
 		filter.Process(frame, frame, ScaleFactor);
 		frame.convertTo(frame, CV_32F);
@@ -75,6 +74,7 @@ int main()
 			break;
 		cout << "frame number: " << i++;
 		cout << "\t maxLoc = " << maxLoc << endl;
+		cout << "\t offset = " << maxLoc - offset << endl;
 	}
 	cap.release();
 
