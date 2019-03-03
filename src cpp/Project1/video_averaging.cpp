@@ -48,6 +48,7 @@ int main()
 	const Rect roiRef = Rect(Point2i(117, 525), Point2i(662, 871));
 	const Rect roiTemplate = Rect(Point2i(301, 621), Point2i(407, 731));
 	const int ScaleFactor = 2;
+	const int MAXOFFSET = 15;
 
 	Mat imgRefFirstFrame = frameCam(roiRef).clone();
 	imwrite(srtOutPath + "imgRefFirstFrame.jpg", imgRefFirstFrame);
@@ -57,7 +58,7 @@ int main()
 	
 	Point offset(roiTemplate.x - roiRef.x, roiTemplate.y - roiRef.y);
 	offset *= ScaleFactor;
-	const Rect roiTemplateRef = Rect(offset, roiTemplate.size() * ScaleFactor);
+	const Rect roiRefTemplate = Rect(offset, roiTemplate.size() * ScaleFactor);
 
 	Mat imgAvgA = Mat(roiTemplate.size() * ScaleFactor, CV_32F, Scalar(0));
 	Mat imgAvgB = Mat(roiTemplate.size() * ScaleFactor, CV_32F, Scalar(0));
@@ -86,11 +87,10 @@ int main()
 		filter.Process(imgRef, imgRef, ScaleFactor);
 
 		Point offsetRef = maxLoc - offset;
-		const int MAXOFFSET = 15;
 		//if ((abs(offsetRef.x) < MAXOFFSET) && (abs(offsetRef.y) < MAXOFFSET))
 		if (sqrt(offsetRef.x * offsetRef.x + offsetRef.y * offsetRef.y) < MAXOFFSET)
 		{
-			Mat imgRefA = imgRef(roiTemplateRef - offsetRef).clone();
+			Mat imgRefA = imgRef(roiRefTemplate - offsetRef).clone();
 			imgAvgA += imgRefA;
 			normalize(imgRefA, imgRefA, 0, 255, NORM_MINMAX);
 			imgRefA.convertTo(imgRefA, CV_8U);
@@ -100,7 +100,7 @@ int main()
 		else
 			cout << "!!!MAXOFFSET!!!" << offsetRef << endl;
 
-		Mat imgRefB = imgRef(roiTemplateRef).clone();
+		Mat imgRefB = imgRef(roiRefTemplate).clone();
 		imgAvgB += imgRefB;
 		normalize(imgRefB, imgRefB, 0, 255, NORM_MINMAX);
 		imgRefB.convertTo(imgRefB, CV_8U);
