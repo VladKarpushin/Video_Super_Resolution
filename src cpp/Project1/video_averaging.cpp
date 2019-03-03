@@ -33,15 +33,20 @@ int main()
 
 	Mat frameCam;
 	cap >> frameCam;
+	if (frameCam.empty())
+	{
+		cout << "frameCam.empty()" << endl;
+		return -1;
+	}
+	cvtColor(frameCam, frameCam, COLOR_BGR2GRAY);
 
-	//const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
-	//const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
-	const Rect roiRef = Rect(Point2i(543, 740), Point2i(901, 983));
-	const Rect roiTemplate = Rect(Point2i(630, 855), Point2i(702, 920));
+	const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
+	const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
+	//const Rect roiRef = Rect(Point2i(543, 740), Point2i(901, 983));
+	//const Rect roiTemplate = Rect(Point2i(630, 855), Point2i(702, 920));
 
 	const int ScaleFactor = 8;
 	Mat imgRefFirstFrame = frameCam(roiRef).clone();
-	cvtColor(imgRefFirstFrame, imgRefFirstFrame, COLOR_BGR2GRAY);
 	imwrite(srtOutPath + "imgRefFirstFrame.jpg", imgRefFirstFrame);
 
 	ImresizeInFreqFilter filter;
@@ -58,9 +63,10 @@ int main()
 		cap >> frameCam;
 		if (frameCam.empty())
 			break;
+		cvtColor(frameCam, frameCam, COLOR_BGR2GRAY);
+
 		Mat imgTemplate;
 		imgTemplate = frameCam(roiTemplate).clone();
-		cvtColor(imgTemplate, imgTemplate, COLOR_BGR2GRAY);
 		filter.Process(imgTemplate, imgTemplate, ScaleFactor);
 		imgTemplate.convertTo(imgTemplate, CV_32F);
 		imgRefFirstFrame.convertTo(imgRefFirstFrame, CV_32F);
@@ -72,9 +78,7 @@ int main()
 		imshow("imgTemplate", imgTemplate);
 
 		Mat imgRef = frameCam(roiRef).clone();
-		cvtColor(imgRef, imgRef, COLOR_BGR2GRAY);
 		filter.Process(imgRef, imgRef, ScaleFactor);
-		Point offsetRel = maxLoc - offset;
 
 		Rect roi = Rect(maxLoc, roiTemplate.size() * ScaleFactor);
 		Mat imgRefA = imgRef(roi).clone();
@@ -94,7 +98,7 @@ int main()
 			break;
 		cout << "frame number: " << i++;
 		cout << "\t maxLoc = " << maxLoc << endl;
-		cout << "\t maxLoc - offset = " << offsetRel << endl;
+		cout << "\t maxLoc - offset = " << maxLoc - offset << endl;
 	}
 	cap.release();
 
