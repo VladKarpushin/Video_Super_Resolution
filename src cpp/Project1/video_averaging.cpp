@@ -31,8 +31,8 @@ int main()
 		return -1;
 	}
 
-	Mat imgRef;
-	cap >> imgRef;
+	Mat frameCam;
+	cap >> frameCam;
 
 	//const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
 	//const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
@@ -40,12 +40,12 @@ int main()
 	const Rect roiTemplate = Rect(Point2i(630, 855), Point2i(702, 920));
 
 	const int ScaleFactor = 8;
-	imgRef = imgRef(roiRef);
-	cvtColor(imgRef, imgRef, COLOR_BGR2GRAY);
-	imwrite(srtOutPath + "Firstframe.jpg", imgRef);
+	Mat imgRefFirstFrame = frameCam(roiRef).clone();
+	cvtColor(imgRefFirstFrame, imgRefFirstFrame, COLOR_BGR2GRAY);
+	imwrite(srtOutPath + "imgRefFirstFrame.jpg", imgRefFirstFrame);
 
 	ImresizeInFreqFilter filter;
-	filter.Process(imgRef, imgRef, ScaleFactor);
+	filter.Process(imgRefFirstFrame, imgRefFirstFrame, ScaleFactor);
 	
 	Point offset(roiTemplate.x - roiRef.x, roiTemplate.y - roiRef.y);
 	offset *= ScaleFactor;
@@ -55,27 +55,27 @@ int main()
 	int i = 0;
 	while (1)
 	{
-		Mat frameCam;
 		cap >> frameCam;
 		if (frameCam.empty())
 			break;
 		Mat imgTemplate;
-		imgTemplate = frameCam(roiTemplate);
+		imgTemplate = frameCam(roiTemplate).clone();
 		cvtColor(imgTemplate, imgTemplate, COLOR_BGR2GRAY);
 		filter.Process(imgTemplate, imgTemplate, ScaleFactor);
 		imgTemplate.convertTo(imgTemplate, CV_32F);
-		imgRef.convertTo(imgRef, CV_32F);
-		//imgRef+= frame;
+		imgRefFirstFrame.convertTo(imgRefFirstFrame, CV_32F);
+
 		Point maxLoc;
-		FindOffset(imgRef, imgTemplate, maxLoc);
+		FindOffset(imgRefFirstFrame, imgTemplate, maxLoc);
 		normalize(imgTemplate, imgTemplate, 0, 255, NORM_MINMAX);
 		imgTemplate.convertTo(imgTemplate, CV_8U);
 		imshow("imgTemplate", imgTemplate);
 
-		Mat imgRef = frameCam(roiRef);
+		Mat imgRef = frameCam(roiRef).clone();
 		cvtColor(imgRef, imgRef, COLOR_BGR2GRAY);
 		filter.Process(imgRef, imgRef, ScaleFactor);
 		Point offsetRel = maxLoc - offset;
+
 		Rect roi = Rect(maxLoc, roiTemplate.size() * ScaleFactor);
 		Mat imgRefA = imgRef(roi).clone();
 		imgAvgA += imgRefA;
@@ -97,11 +97,6 @@ int main()
 		cout << "\t maxLoc - offset = " << offsetRel << endl;
 	}
 	cap.release();
-
-	normalize(imgRef, imgRef, 0, 255, NORM_MINMAX);
-	imgRef.convertTo(imgRef, CV_8U);
-	imshow("Average", imgRef);
-	imwrite(srtOutPath + "imgRef.jpg", imgRef);
 
 	normalize(imgAvgA, imgAvgA, 0, 255, NORM_MINMAX);
 	imgAvgA.convertTo(imgAvgA, CV_8U);
