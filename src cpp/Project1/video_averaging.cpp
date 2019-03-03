@@ -21,11 +21,11 @@ int FindOffset(const Mat & inputImg, const Mat & inputImgTemplate, Point & maxLo
 
 int main() 
 {
-	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video1_new.avi");
-	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\screen1.avi");
+	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video1.avi");
+	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video1_new.avi");
+	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\screen1.avi");
 	String srtOutPath = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
 
-	//VideoCapture cap(0);
 	if (!cap.isOpened())
 	{
 		cout << "Error opening video stream or file" << endl;
@@ -41,14 +41,14 @@ int main()
 	}
 	cvtColor(frameCam, frameCam, COLOR_BGR2GRAY);
 
-	//const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
-	//const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
+	const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
+	const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
 	//const Rect roiRef = Rect(Point2i(543, 740), Point2i(901, 983));
 	//const Rect roiTemplate = Rect(Point2i(630, 855), Point2i(702, 920));
-	const Rect roiRef = Rect(Point2i(117, 525), Point2i(662, 871));
-	const Rect roiTemplate = Rect(Point2i(301, 621), Point2i(407, 731));
+	//const Rect roiRef = Rect(Point2i(117, 525), Point2i(662, 871));
+	//const Rect roiTemplate = Rect(Point2i(301, 621), Point2i(407, 731));
 
-	const int ScaleFactor = 1;
+	const int ScaleFactor = 5;
 	Mat imgRefFirstFrame = frameCam(roiRef).clone();
 	imwrite(srtOutPath + "imgRefFirstFrame.jpg", imgRefFirstFrame);
 
@@ -87,8 +87,8 @@ int main()
 		Point offsetRef = maxLoc - offset;
 		Rect roi = Rect(offset - offsetRef, roiTemplate.size() * ScaleFactor);
 		const int MAXOFFSET = 15;
-		//if (sqrt(offsetRef.x * offsetRef.x + offsetRef.y * offsetRef.y) < MAXOFFSET)
-		if ((abs(offsetRef.x) < MAXOFFSET) && (abs(offsetRef.y) < MAXOFFSET))
+		//if ((abs(offsetRef.x) < MAXOFFSET) && (abs(offsetRef.y) < MAXOFFSET))
+		if (sqrt(offsetRef.x * offsetRef.x + offsetRef.y * offsetRef.y) < MAXOFFSET)
 		{
 			Mat imgRefA = imgRef(roi).clone();
 			imgAvgA += imgRefA;
