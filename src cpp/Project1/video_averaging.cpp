@@ -87,10 +87,8 @@ int main()
 		Point offsetRef = maxLoc - offset;
 		Rect roi = Rect(offset - offsetRef, roiTemplate.size() * ScaleFactor);
 		const int MAXOFFSET = 15;
-		//bool bCond = (abs(offsetRef.x) < MAXOFFSET) || (abs(offsetRef.y) < MAXOFFSET);
-		bool bCond = abs(offsetRef.y) < MAXOFFSET;
-		
-		if (sqrt(offsetRef.x * offsetRef.x + offsetRef.y * offsetRef.y) < MAXOFFSET)
+		//if (sqrt(offsetRef.x * offsetRef.x + offsetRef.y * offsetRef.y) < MAXOFFSET)
+		if ((abs(offsetRef.x) < MAXOFFSET) && (abs(offsetRef.y) < MAXOFFSET))
 		{
 			Mat imgRefA = imgRef(roi).clone();
 			imgAvgA += imgRefA;
