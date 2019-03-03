@@ -21,7 +21,8 @@ int FindOffset(const Mat & inputImg, const Mat & inputImgTemplate, Point & maxLo
 
 int main() 
 {
-	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video1.avi");
+	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video1_new.avi");
+	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\screen1.avi");
 	String srtOutPath = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
 
 	//VideoCapture cap(0);
@@ -40,12 +41,14 @@ int main()
 	}
 	cvtColor(frameCam, frameCam, COLOR_BGR2GRAY);
 
-	const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
-	const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
+	//const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
+	//const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
 	//const Rect roiRef = Rect(Point2i(543, 740), Point2i(901, 983));
 	//const Rect roiTemplate = Rect(Point2i(630, 855), Point2i(702, 920));
+	const Rect roiRef = Rect(Point2i(117, 525), Point2i(662, 871));
+	const Rect roiTemplate = Rect(Point2i(301, 621), Point2i(407, 731));
 
-	const int ScaleFactor = 8;
+	const int ScaleFactor = 1;
 	Mat imgRefFirstFrame = frameCam(roiRef).clone();
 	imwrite(srtOutPath + "imgRefFirstFrame.jpg", imgRefFirstFrame);
 
@@ -58,6 +61,7 @@ int main()
 	Mat imgAvgA = Mat(roiTemplate.size() * ScaleFactor, CV_32F, Scalar(0));
 	Mat imgAvgB = Mat(roiTemplate.size() * ScaleFactor, CV_32F, Scalar(0));
 	int i = 0;
+	int iNumAveragedFrames = 0;
 	while (1)
 	{
 		cap >> frameCam;
@@ -80,12 +84,23 @@ int main()
 		Mat imgRef = frameCam(roiRef).clone();
 		filter.Process(imgRef, imgRef, ScaleFactor);
 
-		Rect roi = Rect(maxLoc, roiTemplate.size() * ScaleFactor);
-		Mat imgRefA = imgRef(roi).clone();
-		imgAvgA += imgRefA;
-		normalize(imgRefA, imgRefA, 0, 255, NORM_MINMAX);
-		imgRefA.convertTo(imgRefA, CV_8U);
-		imshow("imgRefA", imgRefA);
+		Point offsetRef = maxLoc - offset;
+		Rect roi = Rect(offset - offsetRef, roiTemplate.size() * ScaleFactor);
+		const int MAXOFFSET = 15;
+		//bool bCond = (abs(offsetRef.x) < MAXOFFSET) || (abs(offsetRef.y) < MAXOFFSET);
+		bool bCond = abs(offsetRef.y) < MAXOFFSET;
+		
+		if (sqrt(offsetRef.x * offsetRef.x + offsetRef.y * offsetRef.y) < MAXOFFSET)
+		{
+			Mat imgRefA = imgRef(roi).clone();
+			imgAvgA += imgRefA;
+			normalize(imgRefA, imgRefA, 0, 255, NORM_MINMAX);
+			imgRefA.convertTo(imgRefA, CV_8U);
+			imshow("imgRefA", imgRefA);
+			iNumAveragedFrames++;
+		}
+		else
+			cout << "!!!MAXOFFSET!!!" << offsetRef << endl;
 
 		roi = Rect(offset, roiTemplate.size() * ScaleFactor);
 		Mat imgRefB = imgRef(roi).clone();
@@ -97,8 +112,8 @@ int main()
 		if (waitKey(10) >= 0) 
 			break;
 		cout << "frame number: " << i++;
-		cout << "\t maxLoc = " << maxLoc << endl;
-		cout << "\t maxLoc - offset = " << maxLoc - offset << endl;
+		cout << "\t maxLoc = " << maxLoc;
+		cout << "\t maxLoc - offset = " << offsetRef << endl;
 	}
 	cap.release();
 
@@ -109,6 +124,8 @@ int main()
 	normalize(imgAvgB, imgAvgB, 0, 255, NORM_MINMAX);
 	imgAvgB.convertTo(imgAvgB, CV_8U);
 	imwrite(srtOutPath + "imgAvgB.jpg", imgAvgB);
+
+	cout << "Number of averaged frames = " << iNumAveragedFrames << endl;
 
 	waitKey(0);
 
