@@ -61,7 +61,7 @@ int main()
 	
 	Point offset(roiTemplate.x - roiRef.x, roiTemplate.y - roiRef.y);
 	offset *= SCALE_FACTOR;
-	const Rect roiRefTemplate = Rect(offset, (roiTemplate.size() - Size2i(1,1)) * SCALE_FACTOR);
+	const Rect roiRefTemplate = Rect(offset, roiTemplate.size() * SCALE_FACTOR);
 
 	Mat img_averaged = Mat(roiTemplate.size() * SCALE_FACTOR, CV_32F, Scalar(0));	// superresolution image
 	//Mat imgAvgB = Mat(roiTemplate.size() * SCALE_FACTOR, CV_32F, Scalar(0));
