@@ -25,9 +25,8 @@ int FindOffset(const Mat & inputImg, const Mat & inputImgTemplate, Point & maxLo
 
 int main() 
 {
-	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video1.avi");
-	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video1_new.avi");
-	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\screen1.avi");
+ 	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\screen1.avi");
+	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\!moon_zoom_2.MOV");
 	String srtOutPath = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
 
 	if (!cap.isOpened())
@@ -45,14 +44,15 @@ int main()
 	}
 	cvtColor(frameCam, frameCam, COLOR_BGR2GRAY);
 
-	//const Rect roiRef = Rect(Point2i(1571, 186), Point2i(1746, 338));
-	//const Rect roiTemplate = Rect(Point2i(1616, 294), Point2i(1662, 310));
-	//const Rect roiRef = Rect(Point2i(543, 740), Point2i(901, 983));
-	//const Rect roiTemplate = Rect(Point2i(630, 855), Point2i(702, 920));
-	const Rect roiRef = Rect(Point2i(117, 525), Point2i(662, 871));
-	const Rect roiTemplate = Rect(Point2i(301, 621), Point2i(407, 731));
-	const int ScaleFactor = 2;
-	const int MAXOFFSET = 15;
+	const Rect roiRef = Rect(Point2i(800, 350), Point2i(1300, 800));		// for !moon_zoom_2.MOV
+	const Rect roiTemplate = Rect(Point2i(972, 475), Point2i(1075, 586));	// for !moon_zoom_2.MOV
+	const int ScaleFactor = 1; // for screen1.avi
+	const int MAXOFFSET = 100 * ScaleFactor; // for screen1.avi
+
+	//const Rect roiRef = Rect(Point2i(117, 525), Point2i(662, 871));		// for screen1.avi
+	//const Rect roiTemplate = Rect(Point2i(301, 621), Point2i(407, 731));	// for screen1.avi
+	//const int ScaleFactor = 2; // for screen1.avi
+	//const int MAXOFFSET = 15; // for screen1.avi
 
 	Mat imgTemplate = frameCam(roiTemplate).clone();
 	ImresizeInFreqFilter filter;
@@ -67,7 +67,8 @@ int main()
 	Mat imgAvgB = Mat(roiTemplate.size() * ScaleFactor, CV_32F, Scalar(0));
 	int i = 0;
 	int iNumAveragedFrames = 0;
-	while (1)
+	//while (1)
+	while (iNumAveragedFrames < 10)
 	{
 		cap >> frameCam;
 		if (frameCam.empty())
@@ -101,13 +102,17 @@ int main()
 		imgRefB.convertTo(imgRefB, CV_8U);
 		imshow("imgRefB", imgRefB);
 
-		if (waitKey(1) >= 0) 
+		if (waitKey(1) >= 0)
 			break;
 		cout << "frame number: " << i++;
 		cout << "\t maxLoc = " << maxLoc;
 		cout << "\t maxLoc - offset = " << offsetRef << endl;
 	}
 	cap.release();
+
+	normalize(imgTemplate, imgTemplate, 0, 255, NORM_MINMAX);
+	imgTemplate.convertTo(imgTemplate, CV_8U);
+	imwrite(srtOutPath + "imgTemplate(first frame).jpg", imgTemplate);
 
 	normalize(imgAvgA, imgAvgA, 0, 255, NORM_MINMAX);
 	imgAvgA.convertTo(imgAvgA, CV_8U);
