@@ -46,25 +46,25 @@ int main()
 
 	const Rect roiRef = Rect(Point2i(800, 350), Point2i(1300, 800));		// for !moon_zoom_2.MOV
 	const Rect roiTemplate = Rect(Point2i(972, 475), Point2i(1075, 586));	// for !moon_zoom_2.MOV
-	const int ScaleFactor = 1; // for screen1.avi
-	const int MAXOFFSET = 100 * ScaleFactor; // for screen1.avi
+	const int SCALE_FACTOR = 5; // for screen1.avi
+	const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100 for screen1.avi
 
 	//const Rect roiRef = Rect(Point2i(117, 525), Point2i(662, 871));		// for screen1.avi
 	//const Rect roiTemplate = Rect(Point2i(301, 621), Point2i(407, 731));	// for screen1.avi
-	//const int ScaleFactor = 2; // for screen1.avi
-	//const int MAXOFFSET = 15; // for screen1.avi
+	//const int SCALE_FACTOR = 2; // for screen1.avi
+	//const int MAX_OBJ_OFFSET = 15; // for screen1.avi
 
 	Mat imgTemplate = frameCam(roiTemplate).clone();
 	ImresizeInFreqFilter filter;
-	filter.Process(imgTemplate, imgTemplate, ScaleFactor);
+	filter.Process(imgTemplate, imgTemplate, SCALE_FACTOR);
 	imgTemplate.convertTo(imgTemplate, CV_32F);
 	
 	Point offset(roiTemplate.x - roiRef.x, roiTemplate.y - roiRef.y);
-	offset *= ScaleFactor;
-	const Rect roiRefTemplate = Rect(offset, roiTemplate.size() * ScaleFactor);
+	offset *= SCALE_FACTOR;
+	const Rect roiRefTemplate = Rect(offset, (roiTemplate.size() - Size2i(1,1)) * SCALE_FACTOR);
 
-	Mat imgAvgA = Mat(roiTemplate.size() * ScaleFactor, CV_32F, Scalar(0));
-	Mat imgAvgB = Mat(roiTemplate.size() * ScaleFactor, CV_32F, Scalar(0));
+	Mat img_averaged = Mat(roiTemplate.size() * SCALE_FACTOR, CV_32F, Scalar(0));	// superresolution image
+	//Mat imgAvgB = Mat(roiTemplate.size() * SCALE_FACTOR, CV_32F, Scalar(0));
 	int i = 0;
 	int iNumAveragedFrames = 0;
 	//while (1)
@@ -77,36 +77,38 @@ int main()
 
 		Mat imgRef = frameCam(roiRef).clone();
 		imgRef.convertTo(imgRef, CV_32F);
-		filter.Process(imgRef, imgRef, ScaleFactor);
+		filter.Process(imgRef, imgRef, SCALE_FACTOR);
 
 		Point maxLoc;
 		FindOffset(imgRef, imgTemplate, maxLoc);
 
-		Point offsetRef = offset - maxLoc;
-		//if ((abs(offsetRef.x) < MAXOFFSET) && (abs(offsetRef.y) < MAXOFFSET))
-		if (sqrt(offsetRef.x * offsetRef.x + offsetRef.y * offsetRef.y) < MAXOFFSET)
+		Point object_offset = offset - maxLoc;	// offset of detected object
+		//auto nnn = norm(object_offset);
+		//if ((abs(offsetRef.x) < MAX_OBJ_OFFSET) && (abs(offsetRef.y) < MAX_OBJ_OFFSET))
+		//if (sqrt(object_offset.x * object_offset.x + object_offset.y * object_offset.y) < MAX_OBJ_OFFSET)
+		if (norm(object_offset) < MAX_OBJ_OFFSET)
 		{
-			Mat imgRefA = imgRef(roiRefTemplate - offsetRef).clone();
-			imgAvgA += imgRefA;
-			normalize(imgRefA, imgRefA, 0, 255, NORM_MINMAX);
-			imgRefA.convertTo(imgRefA, CV_8U);
-			imshow("imgRefA(stabilized)", imgRefA);
+			Mat img_obj = imgRef(roiRefTemplate - object_offset).clone();	// extracted object from the frame
+			img_averaged += img_obj;
+			normalize(img_obj, img_obj, 0, 255, NORM_MINMAX);
+			img_obj.convertTo(img_obj, CV_8U);
+			imshow("img_obj(stabilized)", img_obj);
 			iNumAveragedFrames++;
 		}
 		else
-			cout << "!!!MAXOFFSET!!!" << offsetRef << endl;
+			cout << "!!!MAX_OBJ_OFFSET!!!" << object_offset << " norm = " << norm(object_offset) << endl;
 
-		Mat imgRefB = imgRef(roiRefTemplate).clone();
-		imgAvgB += imgRefB;
-		normalize(imgRefB, imgRefB, 0, 255, NORM_MINMAX);
-		imgRefB.convertTo(imgRefB, CV_8U);
-		imshow("imgRefB", imgRefB);
+		Mat img_obj_b = imgRef(roiRefTemplate).clone();
+		//imgAvgB += img_obj_b;
+		normalize(img_obj_b, img_obj_b, 0, 255, NORM_MINMAX);
+		img_obj_b.convertTo(img_obj_b, CV_8U);
+		imshow("img_obj_b", img_obj_b);
 
 		if (waitKey(1) >= 0)
 			break;
 		cout << "frame number: " << i++;
 		cout << "\t maxLoc = " << maxLoc;
-		cout << "\t maxLoc - offset = " << offsetRef << endl;
+		cout << "\t maxLoc - offset = " << object_offset << endl;
 	}
 	cap.release();
 
@@ -114,13 +116,13 @@ int main()
 	imgTemplate.convertTo(imgTemplate, CV_8U);
 	imwrite(srtOutPath + "imgTemplate(first frame).jpg", imgTemplate);
 
-	normalize(imgAvgA, imgAvgA, 0, 255, NORM_MINMAX);
-	imgAvgA.convertTo(imgAvgA, CV_8U);
-	imwrite(srtOutPath + "imgAvgA(stabilized).jpg", imgAvgA);
+	normalize(img_averaged, img_averaged, 0, 255, NORM_MINMAX);
+	img_averaged.convertTo(img_averaged, CV_8U);
+	imwrite(srtOutPath + "img_averaged(stabilized).jpg", img_averaged);
 
-	normalize(imgAvgB, imgAvgB, 0, 255, NORM_MINMAX);
-	imgAvgB.convertTo(imgAvgB, CV_8U);
-	imwrite(srtOutPath + "imgAvgB.jpg", imgAvgB);
+	//normalize(imgAvgB, imgAvgB, 0, 255, NORM_MINMAX);
+	//imgAvgB.convertTo(imgAvgB, CV_8U);
+	//imwrite(srtOutPath + "imgAvgB.jpg", imgAvgB);
 
 	cout << "Number of averaged frames = " << iNumAveragedFrames << endl;
 
