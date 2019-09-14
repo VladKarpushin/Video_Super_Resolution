@@ -27,7 +27,9 @@ int main()
 {
  	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\screen1.avi");
 	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\!moon_zoom_2.MOV");
+	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video_man_cut.avi");
 	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\plane3.MOV");
+	
 	String srt_out_path = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
 
 	if (!cap.isOpened())
@@ -44,6 +46,14 @@ int main()
 		return -1;
 	}
 	cvtColor(img_frame, img_frame, COLOR_BGR2GRAY);
+
+	////for video_man_cut.avi
+	//const Rect roi_frame = Rect(Point2i(300, 200), Point2i(1800, 800));
+	//img_frame = img_frame(roi_frame).clone();
+	//const Rect roi_template = Rect(Point2i(146, 133), Point2i(264, 223));
+	//const int SCALE_FACTOR = 1;
+	//const int MAX_OBJ_OFFSET = 300 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
+	//const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 
 	// for plane3.MOV
 	//const Rect roi_frame = Rect(Point2i(820, 312), Point2i(1200, 640));
@@ -83,12 +93,11 @@ int main()
 	filter.Process(img_template, img_template, SCALE_FACTOR);
 	img_template.convertTo(img_template, CV_32F);
 	
-	//Mat img_averaged = Mat(img_template.size(), CV_32F, Scalar(0));	// superresolution image
 	Mat img_averaged = img_template.clone();	// superresolution image
 	int i = 0;
 	int num_avr_frames = 0;
 	//while (1)
-	while (num_avr_frames < 10)
+	while (num_avr_frames < 50)
 	{
 		cap >> img_frame;
 		if (img_frame.empty())
@@ -107,6 +116,7 @@ int main()
 		if (offset_norm < MAX_OBJ_OFFSET)
 		{
 			Mat img_obj = img_frame(roi_template_new - offset).clone();	// extracted object from the frame
+			//Mat img_obj = img_frame(Rect(maxLoc, roi_template_new.size())).clone();	// extracted object from the frame
 			img_averaged += img_obj;
 			normalize(img_obj, img_obj, 0, 255, NORM_MINMAX);
 			img_obj.convertTo(img_obj, CV_8U);
