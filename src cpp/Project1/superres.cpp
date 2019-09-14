@@ -69,7 +69,7 @@ int main()
 	img_frame = img_frame(roi_frame).clone();
 	const Rect roi_template = Rect(Point2i(172, 125), Point2i(264, 223));
 	const int SCALE_FACTOR = 5;
-	const int MAX_OBJ_OFFSET = 1000 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
+	const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 	const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 
 	// for screen1.avi
@@ -78,44 +78,35 @@ int main()
 	//const int SCALE_FACTOR = 2;
 	//const int MAX_OBJ_OFFSET = 15;
 
-
 	Mat img_template = img_frame(roi_template).clone();
 	ImresizeInFreqFilter filter;
 	filter.Process(img_template, img_template, SCALE_FACTOR);
 	img_template.convertTo(img_template, CV_32F);
 	
-	//Point offset(roi_template.x - roi_frame.x, roi_template.y - roi_frame.y);
-	//offset *= SCALE_FACTOR;
-	//Size2i size_out = (roi_template.size() - Size2i(1, 1)) * SCALE_FACTOR;
-	//const Rect roiRefTemplate = Rect(offset, size_out);
-	//Mat img_averaged = Mat(size_out, CV_32F, Scalar(0));	// superresolution image
-	Mat img_averaged = Mat(img_template.size(), CV_32F, Scalar(0));	// superresolution image
+	//Mat img_averaged = Mat(img_template.size(), CV_32F, Scalar(0));	// superresolution image
+	Mat img_averaged = img_template.clone();	// superresolution image
 	int i = 0;
 	int num_avr_frames = 0;
 	//while (1)
-	while (num_avr_frames < 50)
+	while (num_avr_frames < 10)
 	{
 		cap >> img_frame;
 		if (img_frame.empty())
 			break;
 		cvtColor(img_frame, img_frame, COLOR_BGR2GRAY);
 
-		//Mat imgRef = img_frame(roi_frame).clone();
 		img_frame = img_frame(roi_frame).clone();
 		img_frame.convertTo(img_frame, CV_32F);
-		//imgRef.convertTo(imgRef, CV_32F);
 		filter.Process(img_frame, img_frame, SCALE_FACTOR);
 
 		Point maxLoc;
 		FindOffset(img_frame, img_template, maxLoc);
 
-		//Point object_offset = offset - maxLoc;	// offset of detected object
-		Point offset = -maxLoc;	// offset of detected object
+		Point offset = roi_template_new.tl() - maxLoc;	// offset of detected object
 		auto offset_norm = norm(offset);
 		if (offset_norm < MAX_OBJ_OFFSET)
 		{
 			Mat img_obj = img_frame(roi_template_new - offset).clone();	// extracted object from the frame
-			//img_obj = img_frame(roi_template_new).clone();	// extracted object from the frame
 			img_averaged += img_obj;
 			normalize(img_obj, img_obj, 0, 255, NORM_MINMAX);
 			img_obj.convertTo(img_obj, CV_8U);
