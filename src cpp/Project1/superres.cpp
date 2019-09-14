@@ -46,41 +46,42 @@ int main()
 	cvtColor(frame_cam, frame_cam, COLOR_BGR2GRAY);
 
 	// for plane3.MOV
-	//const Rect roiRef = Rect(Point2i(820, 312), Point2i(1200, 640));
+	//const Rect roi_frame = Rect(Point2i(820, 312), Point2i(1200, 640));
 	//const Rect roiTemplate = Rect(Point2i(954, 445), Point2i(1043, 498));
 	//const int SCALE_FACTOR = 5;
 	//const int MAX_OBJ_OFFSET = 300 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100 for screen1.avi
 
 	// for plane1.MOV
-	//const Rect roiRef = Rect(Point2i(878, 435), Point2i(1225, 753));
+	//const Rect roi_frame = Rect(Point2i(878, 435), Point2i(1225, 753));
 	//const Rect roiTemplate = Rect(Point2i(942, 524), Point2i(1092, 619));
 	//const int SCALE_FACTOR = 5;
 	//const int MAX_OBJ_OFFSET = 200 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 
 	// for plane2.MOV
-	//const Rect roiRef = Rect(Point2i(845, 304), Point2i(1300, 663));
+	//const Rect roi_frame = Rect(Point2i(845, 304), Point2i(1300, 663));
 	//const Rect roiTemplate = Rect(Point2i(955, 415), Point2i(1115, 528));
 	//const int SCALE_FACTOR = 5;
 	//const int MAX_OBJ_OFFSET = 200 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 												   
 	//for !moon_zoom_2.MOV
-	const Rect roiRef = Rect(Point2i(800, 350), Point2i(1300, 800));
+	const Rect roi_frame = Rect(Point2i(800, 350), Point2i(1300, 800));
 	const Rect roiTemplate = Rect(Point2i(972, 475), Point2i(1075, 586));
 	const int SCALE_FACTOR = 5;
 	const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 
 	// for screen1.avi
-	//const Rect roiRef = Rect(Point2i(117, 525), Point2i(662, 871));		
+	//const Rect roi_frame = Rect(Point2i(117, 525), Point2i(662, 871));		
 	//const Rect roiTemplate = Rect(Point2i(301, 621), Point2i(407, 731));
 	//const int SCALE_FACTOR = 2;
 	//const int MAX_OBJ_OFFSET = 15;
+
 
 	Mat imgTemplate = frame_cam(roiTemplate).clone();
 	ImresizeInFreqFilter filter;
 	filter.Process(imgTemplate, imgTemplate, SCALE_FACTOR);
 	imgTemplate.convertTo(imgTemplate, CV_32F);
 	
-	Point offset(roiTemplate.x - roiRef.x, roiTemplate.y - roiRef.y);
+	Point offset(roiTemplate.x - roi_frame.x, roiTemplate.y - roi_frame.y);
 	offset *= SCALE_FACTOR;
 	Size2i size_out = (roiTemplate.size() - Size2i(1, 1)) * SCALE_FACTOR;
 	const Rect roiRefTemplate = Rect(offset, size_out);
@@ -96,7 +97,7 @@ int main()
 			break;
 		cvtColor(frame_cam, frame_cam, COLOR_BGR2GRAY);
 
-		Mat imgRef = frame_cam(roiRef).clone();
+		Mat imgRef = frame_cam(roi_frame).clone();
 		imgRef.convertTo(imgRef, CV_32F);
 		filter.Process(imgRef, imgRef, SCALE_FACTOR);
 
