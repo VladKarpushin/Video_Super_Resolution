@@ -36,73 +36,72 @@ int main()
 		return -1;
 	}
 
-	Mat frame_cam;
-	cap >> frame_cam;
-	if (frame_cam.empty())
+	Mat img_frame;
+	cap >> img_frame;
+	if (img_frame.empty())
 	{
-		cout << "frame_cam.empty()" << endl;
+		cout << "img_frame.empty()" << endl;
 		return -1;
 	}
-	cvtColor(frame_cam, frame_cam, COLOR_BGR2GRAY);
+	cvtColor(img_frame, img_frame, COLOR_BGR2GRAY);
 
 	// for plane3.MOV
 	//const Rect roi_frame = Rect(Point2i(820, 312), Point2i(1200, 640));
-	//const Rect roiTemplate = Rect(Point2i(954, 445), Point2i(1043, 498));
+	//const Rect roi_template = Rect(Point2i(954, 445), Point2i(1043, 498));
 	//const int SCALE_FACTOR = 5;
 	//const int MAX_OBJ_OFFSET = 300 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100 for screen1.avi
 
 	// for plane1.MOV
 	//const Rect roi_frame = Rect(Point2i(878, 435), Point2i(1225, 753));
-	//const Rect roiTemplate = Rect(Point2i(942, 524), Point2i(1092, 619));
+	//const Rect roi_template = Rect(Point2i(942, 524), Point2i(1092, 619));
 	//const int SCALE_FACTOR = 5;
 	//const int MAX_OBJ_OFFSET = 200 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 
 	// for plane2.MOV
 	//const Rect roi_frame = Rect(Point2i(845, 304), Point2i(1300, 663));
-	//const Rect roiTemplate = Rect(Point2i(955, 415), Point2i(1115, 528));
+	//const Rect roi_template = Rect(Point2i(955, 415), Point2i(1115, 528));
 	//const int SCALE_FACTOR = 5;
 	//const int MAX_OBJ_OFFSET = 200 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 												   
 	//for !moon_zoom_2.MOV
 	const Rect roi_frame = Rect(Point2i(800, 350), Point2i(1300, 800));
-	const Rect roiTemplate = Rect(Point2i(972, 475), Point2i(1075, 586));
+	const Rect roi_template = Rect(Point2i(972, 475), Point2i(1075, 586));
 	const int SCALE_FACTOR = 5;
 	const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 
 	// for screen1.avi
 	//const Rect roi_frame = Rect(Point2i(117, 525), Point2i(662, 871));		
-	//const Rect roiTemplate = Rect(Point2i(301, 621), Point2i(407, 731));
+	//const Rect roi_template = Rect(Point2i(301, 621), Point2i(407, 731));
 	//const int SCALE_FACTOR = 2;
 	//const int MAX_OBJ_OFFSET = 15;
 
 
-	Mat imgTemplate = frame_cam(roiTemplate).clone();
+	Mat img_template = img_frame(roi_template).clone();
 	ImresizeInFreqFilter filter;
-	filter.Process(imgTemplate, imgTemplate, SCALE_FACTOR);
-	imgTemplate.convertTo(imgTemplate, CV_32F);
+	filter.Process(img_template, img_template, SCALE_FACTOR);
+	img_template.convertTo(img_template, CV_32F);
 	
-	Point offset(roiTemplate.x - roi_frame.x, roiTemplate.y - roi_frame.y);
+	Point offset(roi_template.x - roi_frame.x, roi_template.y - roi_frame.y);
 	offset *= SCALE_FACTOR;
-	Size2i size_out = (roiTemplate.size() - Size2i(1, 1)) * SCALE_FACTOR;
+	Size2i size_out = (roi_template.size() - Size2i(1, 1)) * SCALE_FACTOR;
 	const Rect roiRefTemplate = Rect(offset, size_out);
 	Mat img_averaged = Mat(size_out, CV_32F, Scalar(0));	// superresolution image
-	//Mat imgAvgB = Mat(roiTemplate.size() * SCALE_FACTOR, CV_32F, Scalar(0));
 	int i = 0;
-	int iNumAveragedFrames = 0;
+	int num_avr_frames = 0;
 	//while (1)
-	while (iNumAveragedFrames < 50)
+	while (num_avr_frames < 50)
 	{
-		cap >> frame_cam;
-		if (frame_cam.empty())
+		cap >> img_frame;
+		if (img_frame.empty())
 			break;
-		cvtColor(frame_cam, frame_cam, COLOR_BGR2GRAY);
+		cvtColor(img_frame, img_frame, COLOR_BGR2GRAY);
 
-		Mat imgRef = frame_cam(roi_frame).clone();
+		Mat imgRef = img_frame(roi_frame).clone();
 		imgRef.convertTo(imgRef, CV_32F);
 		filter.Process(imgRef, imgRef, SCALE_FACTOR);
 
 		Point maxLoc;
-		FindOffset(imgRef, imgTemplate, maxLoc);
+		FindOffset(imgRef, img_template, maxLoc);
 
 		Point object_offset = offset - maxLoc;	// offset of detected object
 		auto offset_norm = norm(object_offset);
@@ -113,7 +112,7 @@ int main()
 			normalize(img_obj, img_obj, 0, 255, NORM_MINMAX);
 			img_obj.convertTo(img_obj, CV_8U);
 			imshow("img_obj(stabilized)", img_obj);
-			iNumAveragedFrames++;
+			num_avr_frames++;
 		}
 		else
 			cout << "!!!MAX_OBJ_OFFSET!!!" << object_offset << " norm = " << offset_norm << endl;
@@ -131,14 +130,14 @@ int main()
 	}
 	cap.release();
 
-	normalize(imgTemplate, imgTemplate, 0, 255, NORM_MINMAX);
-	imgTemplate.convertTo(imgTemplate, CV_8U);
-	imwrite(srt_out_path + "imgTemplate(first frame).jpg", imgTemplate);
+	normalize(img_template, img_template, 0, 255, NORM_MINMAX);
+	img_template.convertTo(img_template, CV_8U);
+	imwrite(srt_out_path + "img_template(first frame).jpg", img_template);
 
 	normalize(img_averaged, img_averaged, 0, 255, NORM_MINMAX);
 	img_averaged.convertTo(img_averaged, CV_8U);
 	imwrite(srt_out_path + "img_averaged(stabilized).jpg", img_averaged);
-	cout << "Number of averaged frames = " << iNumAveragedFrames << endl;
+	cout << "Number of averaged frames = " << num_avr_frames << endl;
 
 	waitKey(0);
 	return 0;
