@@ -25,7 +25,7 @@ int FindOffset(const Mat & inputImg, const Mat & inputImgTemplate, Point & maxLo
 
 int main() 
 {
-	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new2\\!license_plate3.MTS");
+	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new2\\license_plate4.MTS");
 	
 	String srt_out_path = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
 
@@ -87,9 +87,9 @@ int main()
 	//const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 
 	// for !license_plate3
-	const Rect roi_frame = Rect(Point2i(746, 397), Point2i(1166, 705));
+	const Rect roi_frame = Rect(Point2i(853, 378), Point2i(1278, 657));
 	img_frame = img_frame(roi_frame).clone();
-	Rect roi_template = Rect(Point2i(140, 88), Point2i(310, 181));	// w and h should be even
+	Rect roi_template = Rect(Point2i(134, 84), Point2i(257, 140));	// w and h should be even
 	roi_template.width = roi_template.width & -2;
 	roi_template.height = roi_template.height& -2;
 	const int SCALE_FACTOR = 3;
@@ -124,7 +124,6 @@ int main()
 		if (offset_norm < MAX_OBJ_OFFSET)
 		{
 			Mat img_obj = img_frame(roi_template_new - offset).clone();	// extracted object from the frame
-			//Mat img_obj = img_frame(Rect(maxLoc, roi_template_new.size())).clone();	// extracted object from the frame
 			img_averaged += img_obj;
 			normalize(img_obj, img_obj, 0, 255, NORM_MINMAX);
 			img_obj.convertTo(img_obj, CV_8U);
@@ -138,6 +137,11 @@ int main()
 		normalize(img_obj_b, img_obj_b, 0, 255, NORM_MINMAX);
 		img_obj_b.convertTo(img_obj_b, CV_8U);
 		imshow("img_obj_b", img_obj_b);
+
+		Mat img_avr;
+		normalize(img_averaged, img_avr, 0, 255, NORM_MINMAX);
+		img_avr.convertTo(img_avr, CV_8U);
+		imshow("img_avr", img_avr);
 
 		if (waitKey(1) >= 0)
 			break;
