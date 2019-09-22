@@ -25,7 +25,7 @@ int FindOffset(const Mat & inputImg, const Mat & inputImgTemplate, Point & maxLo
 
 int main() 
 {
-	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new2\\one_book.MTS");
+	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video1.avi");
 	
 	String srt_out_path = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
 
@@ -76,7 +76,6 @@ int main()
 	//const Rect roi_template = Rect(Point2i(172, 125), Point2i(264, 223));
 	//const int SCALE_FACTOR = 5;
 	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-	//const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 
 	// for bookshelf
 	//const Rect roi_frame = Rect(Point2i(680, 141), Point2i(1343, 684));
@@ -84,7 +83,6 @@ int main()
 	//const Rect roi_template = Rect(Point2i(347, 170), Point2i(407, 514));	// w and h should be even
 	//const int SCALE_FACTOR = 5;
 	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-	//const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 
 	// for !license_plate3
 	//const Rect roi_frame = Rect(Point2i(853, 378), Point2i(1278, 657));
@@ -94,18 +92,25 @@ int main()
 	//roi_template.height = roi_template.height& -2;
 	//const int SCALE_FACTOR = 3;
 	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-	//const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 
 	// for one_book
-	const Rect roi_frame = Rect(Point2i(647, 136), Point2i(1747, 949));
+	//const Rect roi_frame = Rect(Point2i(647, 136), Point2i(1747, 949));
+	//img_frame = img_frame(roi_frame).clone();
+	//Rect roi_template = Rect(Point2i(560, 237), Point2i(922, 442));	// w and h should be even
+	//roi_template.width = roi_template.width & -2;
+	//roi_template.height = roi_template.height& -2;
+	//const int SCALE_FACTOR = 4;
+	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
+
+	const Rect roi_frame = Rect(Point2i(630, 850), Point2i(715, 937));
 	img_frame = img_frame(roi_frame).clone();
-	Rect roi_template = Rect(Point2i(560, 237), Point2i(922, 442));	// w and h should be even
+	Rect roi_template = Rect(Point2i(7, 8), Point2i(69, 73));	// w and h should be even
 	roi_template.width = roi_template.width & -2;
 	roi_template.height = roi_template.height& -2;
-	const int SCALE_FACTOR = 4;
+	const int SCALE_FACTOR = 10;
 	const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-	const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 
+	const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 	Mat img_template = img_frame(roi_template).clone();
 	ImresizeInFreqFilter filter;
 	filter.Process(img_template, img_template, SCALE_FACTOR);
