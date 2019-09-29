@@ -25,7 +25,8 @@ int FindOffset(const Mat & inputImg, const Mat & inputImgTemplate, Point & maxLo
 
 int main() 
 {
-	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new3_panasonic_siemens_star\\siemens_star.MTS");
+//	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new4_nikon_siemens_star\\with VR\\nikon_siemens_star_with_VR.MOV");
+	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new4_nikon_siemens_star\\without VR\\nikon_siemens_star_without_VR.MOV");
 	
 	String srt_out_path = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
 
@@ -102,13 +103,25 @@ int main()
 	//const int SCALE_FACTOR = 4;
 	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 
-	const Rect roi_frame = Rect(Point2i(722, 349), Point2i(1474, 805));
+	// pana siemens star
+	//const Rect roi_frame = Rect(Point2i(722, 349), Point2i(1474, 805));
+	//img_frame = img_frame(roi_frame).clone();
+	//Rect roi_template = Rect(Point2i(94, 34), Point2i(479, 395));	// w and h should be even
+	//roi_template.width = roi_template.width & -2;
+	//roi_template.height = roi_template.height& -2;
+	//const int SCALE_FACTOR = 3;
+	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
+
+	// nikon siemens star
+	const Rect roi_frame = Rect(Point2i(753, 310), Point2i(1230, 700));
 	img_frame = img_frame(roi_frame).clone();
-	Rect roi_template = Rect(Point2i(94, 34), Point2i(479, 395));	// w and h should be even
+	Rect roi_template = Rect(Point2i(122, 133), Point2i(281, 261));	// w and h should be even
 	roi_template.width = roi_template.width & -2;
 	roi_template.height = roi_template.height& -2;
 	const int SCALE_FACTOR = 3;
 	const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
+	const int MAX_FRAMES = 100;	// max number of averaged frames
+
 
 	const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 	Mat img_template = img_frame(roi_template).clone();
@@ -119,8 +132,7 @@ int main()
 	Mat img_averaged = img_template.clone();	// superresolution image
 	int i = 0;
 	int num_avr_frames = 0;
-	//while (1)
-	while (num_avr_frames < 10)
+	while (num_avr_frames < MAX_FRAMES)
 	{
 		cap >> img_frame;
 		if (img_frame.empty())
