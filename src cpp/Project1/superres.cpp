@@ -1,9 +1,8 @@
 ﻿// 2019-03-03 Video super resolution and camera stabilization
 //
-//
-
 
 #include <iostream>
+//#include <string>
 #include "opencv2/opencv.hpp"
 #include  "ImresizeInFreqFilter.hpp"
 
@@ -26,7 +25,7 @@ int FindOffset(const Mat & inputImg, const Mat & inputImgTemplate, Point & maxLo
 
 int main() 
 {
-	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\video1.avi");
+	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new3_panasonic_siemens_star\\siemens_star.MTS");
 	
 	String srt_out_path = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
 
@@ -103,12 +102,12 @@ int main()
 	//const int SCALE_FACTOR = 4;
 	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 
-	const Rect roi_frame = Rect(Point2i(630, 850), Point2i(715, 937));
+	const Rect roi_frame = Rect(Point2i(722, 349), Point2i(1474, 805));
 	img_frame = img_frame(roi_frame).clone();
-	Rect roi_template = Rect(Point2i(7, 8), Point2i(69, 73));	// w and h should be even
+	Rect roi_template = Rect(Point2i(94, 34), Point2i(479, 395));	// w and h should be even
 	roi_template.width = roi_template.width & -2;
 	roi_template.height = roi_template.height& -2;
-	const int SCALE_FACTOR = 10;
+	const int SCALE_FACTOR = 3;
 	const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 
 	const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
@@ -121,11 +120,15 @@ int main()
 	int i = 0;
 	int num_avr_frames = 0;
 	//while (1)
-	while (num_avr_frames < 100)
+	while (num_avr_frames < 10)
 	{
 		cap >> img_frame;
 		if (img_frame.empty())
 			break;
+		
+		std::string s_frame = std::to_string(num_avr_frames);
+		imwrite(srt_out_path + "img_frame_" + s_frame + ".jpg", img_frame);
+
 		cvtColor(img_frame, img_frame, COLOR_BGR2GRAY);
 
 		img_frame = img_frame(roi_frame).clone();
