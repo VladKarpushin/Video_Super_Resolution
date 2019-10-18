@@ -21,3 +21,4 @@ The figure below shows a one photo of the Moon.
 
 The figure below shows superresolution result of 24 processed photos.
 ![Power spectrum density showing periodic noise](/www/images/superres.jpg)
+
