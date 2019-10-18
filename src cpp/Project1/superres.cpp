@@ -71,7 +71,7 @@ int main()
 	Rect roi_template = Rect(Point2i(870, 750), Point2i(1111, 1025));	// w and h should be even
 	roi_template.width = roi_template.width & -2;
 	roi_template.height = roi_template.height& -2;
-	const int SCALE_FACTOR = 4;
+	const int SCALE_FACTOR = 1;
 	const int MAX_OBJ_OFFSET = 300 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 	const int MAX_FRAMES = file_vec.size();	// max number of averaged frames
 
