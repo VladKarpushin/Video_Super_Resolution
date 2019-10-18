@@ -47,20 +47,17 @@ int main()
 	string str_mask = str_path_in + "*.jpg";
 	GetFilesVec(str_mask.c_str(), file_vec);
 
-//	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new4_nikon_siemens_star\\with VR\\nikon_siemens_star_with_VR.MOV");
-	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new5\\DSC_0510.MOV");
-	VideoCapture cap(str_path_in + "DSC_0510.MOV");
-	
 	string srt_out_path = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
-
-	if (!cap.isOpened())
-	{
-		cout << "Error opening video stream or file" << endl;
-		return -1;
-	}
+	//VideoCapture cap(str_path_in + "DSC_0510.MOV");
+	//if (!cap.isOpened())
+	//{
+	//	cout << "Error opening video stream or file" << endl;
+	//	return -1;
+	//}
 
 	Mat img_frame;
-	cap >> img_frame;
+	img_frame = imread(str_path_in + file_vec[0]);
+	//cap >> img_frame;
 	if (img_frame.empty())
 	{
 		cout << "img_frame.empty()" << endl;
@@ -69,14 +66,14 @@ int main()
 	cvtColor(img_frame, img_frame, COLOR_BGR2GRAY);
 
 	// nikon siemens star
-	const Rect roi_frame = Rect(Point2i(848, 408), Point2i(1088, 630));
+	const Rect roi_frame = Rect(Point2i(2000, 1100), Point2i(4379, 2972));
 	img_frame = img_frame(roi_frame).clone();
-	Rect roi_template = Rect(Point2i(84, 72), Point2i(142, 152));	// w and h should be even
+	Rect roi_template = Rect(Point2i(870, 750), Point2i(1111, 1025));	// w and h should be even
 	roi_template.width = roi_template.width & -2;
 	roi_template.height = roi_template.height& -2;
-	const int SCALE_FACTOR = 5;
-	const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-	const int MAX_FRAMES = 100;	// max number of averaged frames
+	const int SCALE_FACTOR = 4;
+	const int MAX_OBJ_OFFSET = 300 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
+	const int MAX_FRAMES = file_vec.size();	// max number of averaged frames
 
 	const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 	Mat img_template = img_frame(roi_template).clone();
@@ -85,11 +82,14 @@ int main()
 	img_template.convertTo(img_template, CV_32F);
 	
 	Mat img_averaged = img_template.clone();	// superresolution image
-	int i = 0;
+	//int i = 0;
 	int num_avr_frames = 0;
-	while (num_avr_frames < MAX_FRAMES)
+	//while (num_avr_frames < MAX_FRAMES)
+	for(int i = 1; i < MAX_FRAMES; i++)
 	{
-		cap >> img_frame;
+		//i++;
+		//cap >> img_frame;
+		img_frame = imread(str_path_in + file_vec[i]);
 		if (img_frame.empty())
 			break;
 		
@@ -131,11 +131,11 @@ int main()
 
 		if (waitKey(1) >= 0)
 			break;
-		cout << "frame number: " << i++;
+		cout << "frame number: " << i;
 		cout << "\t maxLoc = " << maxLoc;
 		cout << "\t maxLoc - offset = " << offset << endl;
 	}
-	cap.release();
+	//cap.release();
 
 	normalize(img_template, img_template, 0, 255, NORM_MINMAX);
 	img_template.convertTo(img_template, CV_8U);
