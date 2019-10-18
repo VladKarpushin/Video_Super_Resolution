@@ -7,7 +7,6 @@
 #include  "ImresizeInFreqFilter.hpp"
 #include <windows.h>
 
-
 using namespace cv;
 using namespace std;
 
@@ -65,7 +64,6 @@ int main()
 	}
 	cvtColor(img_frame, img_frame, COLOR_BGR2GRAY);
 
-	// nikon siemens star
 	const Rect roi_frame = Rect(Point2i(2000, 1100), Point2i(4379, 2972));
 	img_frame = img_frame(roi_frame).clone();
 	Rect roi_template = Rect(Point2i(870, 750), Point2i(1111, 1025));	// w and h should be even
