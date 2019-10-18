@@ -5,10 +5,11 @@
 //#include <string>
 #include "opencv2/opencv.hpp"
 #include  "ImresizeInFreqFilter.hpp"
+#include <windows.h>
+
 
 using namespace cv;
-using std::cout;
-using std::endl;
+using namespace std;
 
 int FindOffset(const Mat & inputImg, const Mat & inputImgTemplate, Point & maxLoc)
 {
@@ -23,12 +24,34 @@ int FindOffset(const Mat & inputImg, const Mat & inputImgTemplate, Point & maxLo
 	return 0;
 }
 
+void GetFilesVec(LPCTSTR lpFileName, vector<string> & file_vec)
+{
+	HANDLE hFind;
+	WIN32_FIND_DATA FindFileData;
+	if ((hFind = FindFirstFile(lpFileName, &FindFileData)) != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			printf("%s\n", FindFileData.cFileName);
+			file_vec.push_back(FindFileData.cFileName);
+
+		} while (FindNextFile(hFind, &FindFileData));
+		FindClose(hFind);
+	}
+}
+
 int main() 
 {
+	string str_path_in = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new5\\";
+	vector<string> file_vec;
+	string str_mask = str_path_in + "*.jpg";
+	GetFilesVec(str_mask.c_str(), file_vec);
+
 //	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new4_nikon_siemens_star\\with VR\\nikon_siemens_star_with_VR.MOV");
-	VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new4_nikon_siemens_star\\without VR\\nikon_siemens_star_without_VR.MOV");
+	//VideoCapture cap("D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\input\\new5\\DSC_0510.MOV");
+	VideoCapture cap(str_path_in + "DSC_0510.MOV");
 	
-	String srt_out_path = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
+	string srt_out_path = "D:\\home\\programming\\vc\\new\\6_My home projects\\11_video processing\\output\\";
 
 	if (!cap.isOpened())
 	{
@@ -45,83 +68,15 @@ int main()
 	}
 	cvtColor(img_frame, img_frame, COLOR_BGR2GRAY);
 
-	////for video_man_cut.avi
-	//const Rect roi_frame = Rect(Point2i(300, 200), Point2i(1800, 800));
-	//img_frame = img_frame(roi_frame).clone();
-	//const Rect roi_template = Rect(Point2i(146, 133), Point2i(264, 223));
-	//const int SCALE_FACTOR = 1;
-	//const int MAX_OBJ_OFFSET = 300 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-	//const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
-
-	// for plane3.MOV
-	//const Rect roi_frame = Rect(Point2i(820, 312), Point2i(1200, 640));
-	//const Rect roi_template = Rect(Point2i(954, 445), Point2i(1043, 498));
-	//const int SCALE_FACTOR = 5;
-	//const int MAX_OBJ_OFFSET = 300 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100 for screen1.avi
-
-	// for plane1.MOV
-	//const Rect roi_frame = Rect(Point2i(878, 435), Point2i(1225, 753));
-	//const Rect roi_template = Rect(Point2i(942, 524), Point2i(1092, 619));
-	//const int SCALE_FACTOR = 5;
-	//const int MAX_OBJ_OFFSET = 200 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-
-	// for plane2.MOV
-	//const Rect roi_frame = Rect(Point2i(845, 304), Point2i(1300, 663));
-	//const Rect roi_template = Rect(Point2i(955, 415), Point2i(1115, 528));
-	//const int SCALE_FACTOR = 5;
-	//const int MAX_OBJ_OFFSET = 200 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-												   
-	//for !moon_zoom_2.MOV
-	//const Rect roi_frame = Rect(Point2i(800, 350), Point2i(1300, 800));
-	//img_frame = img_frame(roi_frame).clone();
-	//const Rect roi_template = Rect(Point2i(172, 125), Point2i(264, 223));
-	//const int SCALE_FACTOR = 5;
-	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-
-	// for bookshelf
-	//const Rect roi_frame = Rect(Point2i(680, 141), Point2i(1343, 684));
-	//img_frame = img_frame(roi_frame).clone();
-	//const Rect roi_template = Rect(Point2i(347, 170), Point2i(407, 514));	// w and h should be even
-	//const int SCALE_FACTOR = 5;
-	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-
-	// for !license_plate3
-	//const Rect roi_frame = Rect(Point2i(853, 378), Point2i(1278, 657));
-	//img_frame = img_frame(roi_frame).clone();
-	//Rect roi_template = Rect(Point2i(134, 84), Point2i(257, 140));	// w and h should be even
-	//roi_template.width = roi_template.width & -2;
-	//roi_template.height = roi_template.height& -2;
-	//const int SCALE_FACTOR = 3;
-	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-
-	// for one_book
-	//const Rect roi_frame = Rect(Point2i(647, 136), Point2i(1747, 949));
-	//img_frame = img_frame(roi_frame).clone();
-	//Rect roi_template = Rect(Point2i(560, 237), Point2i(922, 442));	// w and h should be even
-	//roi_template.width = roi_template.width & -2;
-	//roi_template.height = roi_template.height& -2;
-	//const int SCALE_FACTOR = 4;
-	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-
-	// pana siemens star
-	//const Rect roi_frame = Rect(Point2i(722, 349), Point2i(1474, 805));
-	//img_frame = img_frame(roi_frame).clone();
-	//Rect roi_template = Rect(Point2i(94, 34), Point2i(479, 395));	// w and h should be even
-	//roi_template.width = roi_template.width & -2;
-	//roi_template.height = roi_template.height& -2;
-	//const int SCALE_FACTOR = 3;
-	//const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
-
 	// nikon siemens star
-	const Rect roi_frame = Rect(Point2i(753, 310), Point2i(1230, 700));
+	const Rect roi_frame = Rect(Point2i(848, 408), Point2i(1088, 630));
 	img_frame = img_frame(roi_frame).clone();
-	Rect roi_template = Rect(Point2i(122, 133), Point2i(281, 261));	// w and h should be even
+	Rect roi_template = Rect(Point2i(84, 72), Point2i(142, 152));	// w and h should be even
 	roi_template.width = roi_template.width & -2;
 	roi_template.height = roi_template.height& -2;
-	const int SCALE_FACTOR = 3;
+	const int SCALE_FACTOR = 5;
 	const int MAX_OBJ_OFFSET = 100 * SCALE_FACTOR; // max allowed radius of object offset MAX_OBJ_OFFSET = 100
 	const int MAX_FRAMES = 100;	// max number of averaged frames
-
 
 	const Rect roi_template_new = Rect(roi_template.tl()*SCALE_FACTOR, roi_template.size()*SCALE_FACTOR);
 	Mat img_template = img_frame(roi_template).clone();
@@ -138,8 +93,8 @@ int main()
 		if (img_frame.empty())
 			break;
 		
-		std::string s_frame = std::to_string(num_avr_frames);
-		imwrite(srt_out_path + "img_frame_" + s_frame + ".jpg", img_frame);
+		//std::string s_frame = std::to_string(num_avr_frames);
+		//imwrite(srt_out_path + "img_frame_" + s_frame + ".jpg", img_frame);
 
 		cvtColor(img_frame, img_frame, COLOR_BGR2GRAY);
 
