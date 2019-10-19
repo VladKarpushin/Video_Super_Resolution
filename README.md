@@ -30,5 +30,6 @@ The Crater Tycho is seen in bottom part of the image.
 
 References
 ------
-[Tycho](https://en.wikipedia.org/wiki/Tycho_(lunar_crater)).
+[Tycho](https://en.wikipedia.org/wiki/Tycho_(lunar_crater)),
+
 [Copernicus](https://en.wikipedia.org/wiki/Copernicus_(lunar_crater)).
