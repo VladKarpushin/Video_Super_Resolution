@@ -24,3 +24,5 @@ The figure below shows a one photo of the Moon.
 
 The figure below shows superresolution result of 24 processed photos.
 ![](/www/images/superres.jpg)
+
+The Crater Copernicus is seen in left middle side of the image.
