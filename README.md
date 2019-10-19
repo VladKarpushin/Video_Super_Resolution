@@ -26,3 +26,4 @@ The figure below shows superresolution result of 24 processed photos.
 ![](/www/images/superres.jpg)
 
 The Crater Copernicus is seen in left middle side of the image.
+The Crater Tycho is seen in bottom part of the image.
