@@ -12,12 +12,14 @@ In this tutorial you will learn:
 Theory
 ------
 
+-   interpolation in frequency domain
+-   images allignment 
+-   signal accumulation
 
 Result
 ------
 
 The figure below shows a one photo of the Moon.
-
 ![](/www/images/one_frame.jpg)
 
 The figure below shows superresolution result of 24 processed photos.
