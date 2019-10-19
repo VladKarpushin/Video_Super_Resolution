@@ -28,5 +28,7 @@ The figure below shows superresolution result of 24 processed photos.
 The Crater Copernicus is seen in left middle side of the image.
 The Crater Tycho is seen in bottom part of the image.
 
+References
+------
 [Tycho](https://en.wikipedia.org/wiki/Tycho_(lunar_crater)).
 [Copernicus](https://en.wikipedia.org/wiki/Copernicus_(lunar_crater)).
